@@ -60,10 +60,26 @@
         </div>
 
         <!-- Info sorteio -->
-        <div class="px-4 py-3 flex justify-between items-center text-sm text-gray-600">
-            <p id="info-sorteio">🎉 Sorteio: <b></b></p>
-            <p>Por apenas <span class="bg-black text-white px-2 py-1 rounded">R$ 0,99</span></p>
-        </div>
+<div class="px-4 py-3 flex justify-between items-center text-sm text-gray-600">
+    <p id="info-sorteio">🎉 Sorteio: <b id="data-sorteio"></b></p>
+    <p>Por apenas <span class="bg-black text-white px-2 py-1 rounded">R$ 0,99</span></p>
+</div>
+
+<script>
+    const data = new Date();
+
+    const opcoes = {
+        weekday: 'long',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    };
+
+    const dataFormatada = data.toLocaleDateString('pt-BR', opcoes);
+
+    document.getElementById('data-sorteio').textContent = dataFormatada;
+</script>
+
 
         <!-- Grade de botões -->
         <section class="m-0 min-h-[218px] flex flex-col gap-[1px] font-inter">
