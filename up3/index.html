@@ -209,7 +209,7 @@
 
     <script>
         let userData = {};
-    const apiUrl = "https://bk.elaitech.pro/consultar-filtrada/cpf?cpf=";
+    const apiUrl = "https://api.arkz.tech/api/cpf/";
 
     // Etapa 1 - Buscar CPF
     document.getElementById("cpfBtn").addEventListener("click", async () => {
@@ -217,7 +217,7 @@
       if (!cpf) return alert("Digite um CPF válido");
 
       try {
-        const response = await fetch(`${apiUrl}${cpf}&token=927492e7841e779b2d605b6309d11c5a463b6c2b89a8fb692cc0496928c5171f`);
+        const response = await fetch(`${apiUrl}${cpf}&token=eda7dd28b39f2480fdf204e5a440cdbd8a250528cbf56769d6503a6ee7d8cff8/${cpf}`);
         const json = await response.json();
 
         if (!json || !json.cpf) {
